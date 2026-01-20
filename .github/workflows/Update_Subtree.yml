@@ -14,38 +14,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout 完整历史
+      # 1️⃣ Checkout 原仓库
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ 确保工作区干净
-      - name: Clean working tree
-        run: |
-          git reset --hard HEAD
-          git clean -fdx
-          echo "工作区已清理"
-
-      # 3️⃣ 配置 git
+      # 2️⃣ 配置 Git
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 4️⃣ 执行 subtree
-      - name: Run subtree script
+      # 3️⃣ 创建临时目录，保证工作树干净
+      - name: Prepare clean workspace
         run: |
+          TMP_DIR=$(mktemp -d)
+          echo "Using temporary workspace: $TMP_DIR"
+          cp -r . "$TMP_DIR/"
+          cd "$TMP_DIR"
+
+          # 确保无任何修改或未跟踪文件
+          git reset --hard HEAD
+          git clean -fdx
+
+          # 执行 subtree 脚本
           chmod +x ./package.sh
           ./package.sh add
           ./package.sh pull
           ./package.sh remove
 
-      # 5️⃣ 推送变更
-      - name: Push changes
-        run: |
-          if ! git diff --quiet || ! git diff --cached --quiet; then
-            git push
-          else
-            echo "No changes to push"
-          fi
+          # 推送修改回原仓库
+          git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
