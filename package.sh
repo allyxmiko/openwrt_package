@@ -79,6 +79,8 @@ done < "$CONFIG_FILE"
 # add / pull
 #######################################
 if [[ "$COMMAND" == "add" || "$COMMAND" == "pull" ]]; then
+    git reset --hard HEAD
+    git clean -fdx
     for prefix in "${!CFG_PREFIX[@]}"; do
         repo="${CFG_REPO[$prefix]}"
         branch="${CFG_BRANCH[$prefix]}"
@@ -88,8 +90,6 @@ if [[ "$COMMAND" == "add" || "$COMMAND" == "pull" ]]; then
                 skip "$prefix 已存在"
                 continue
             fi
-            git reset --hard HEAD
-            git clean -fdx
             action "subtree add $prefix <= $repo ($branch)"
             git subtree add \
                 --prefix="$prefix" \
