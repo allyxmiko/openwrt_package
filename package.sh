@@ -117,18 +117,22 @@ fi
 # remove（声明式收敛）
 #######################################
 if [[ "$COMMAND" == "remove" ]]; then
-    info "以配置文件为准，删除未声明的 subtree"
+    info "以配置文件为准，删除根目录下未声明的一级 subtree"
 
     removed=0
 
-    # 仅删除 Git 跟踪的目录
-    while IFS= read -r dir; do
-        [[ -z "${CFG_PREFIX[$dir]:-}" ]] || continue
+    # 只列出仓库根目录的一级目录
+    for dir in */ ; do
+        dir="${dir%/}"  # 去掉末尾的 /
+        [[ -z "$dir" ]] && continue
 
-        action "删除未声明 subtree: $dir"
-        git rm -r "$dir"
-        removed=1
-    done < <(git ls-tree -d -r --name-only HEAD)
+        # 如果配置里没有声明，就删除
+        [[ -z "${CFG_PREFIX[$dir]:-}" ]] && {
+            action "删除未声明 subtree: $dir"
+            git rm -r "$dir"
+            removed=1
+        } || skip "$dir 在配置中，保留"
+    done
 
     if [[ "$removed" -eq 1 ]]; then
         git commit -m "chore: remove unmanaged subtrees"
