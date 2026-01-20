@@ -36,10 +36,10 @@ jobs:
       # 4️⃣ 执行 subtree
       - name: Run subtree script
         run: |
-          chmod +x ./repo-subtree.sh
-          ./repo-subtree.sh add
-          ./repo-subtree.sh pull
-          ./repo-subtree.sh remove
+          chmod +x ./package.sh
+          ./package.sh add
+          ./package.sh pull
+          ./package.sh remove
 
       # 5️⃣ 推送变更
       - name: Push changes
