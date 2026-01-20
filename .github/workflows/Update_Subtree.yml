@@ -1,42 +1,46 @@
 name: Sync Subtrees on Config Update
 
-# 只在 subtrees.conf 被更新时触发
 on:
-  workflow_dispatch:
   push:
     paths:
       - "subtrees.conf"
 
 permissions:
-  contents: write   # 必须，否则无法 commit/push
+  contents: write
 
 jobs:
   sync-subtrees:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout 完整历史
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Ensure clean working tree
+      # 2️⃣ 确保工作区干净
+      - name: Clean working tree
         run: |
-            git reset --hard
-            git clean -fdx
+          git reset --hard HEAD
+          git clean -fdx
+          echo "工作区已清理"
 
+      # 3️⃣ 配置 git
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      # 4️⃣ 执行 subtree
       - name: Run subtree script
         run: |
-          chmod +x ./package.sh
-          ./package.sh add
-          ./package.sh pull
-          ./package.sh remove
+          chmod +x ./repo-subtree.sh
+          ./repo-subtree.sh add
+          ./repo-subtree.sh pull
+          ./repo-subtree.sh remove
 
+      # 5️⃣ 推送变更
       - name: Push changes
         run: |
           if ! git diff --quiet || ! git diff --cached --quiet; then
