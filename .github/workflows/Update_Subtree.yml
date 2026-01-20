@@ -14,19 +14,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ 拉取仓库完整历史（subtree 必须）
+      - name: Ensure clean working tree
+        run: |
+            git reset --hard
+            git clean -fdx
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ 配置 Git 用户（用于 commit）
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 3️⃣ 执行 subtree 脚本
       - name: Run subtree script
         run: |
           chmod +x ./package.sh
@@ -34,7 +36,6 @@ jobs:
           ./package.sh pull
           ./package.sh remove
 
-      # 4️⃣ 推送修改回仓库（如果有 commit）
       - name: Push changes
         run: |
           if ! git diff --quiet || ! git diff --cached --quiet; then
