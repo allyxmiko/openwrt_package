@@ -88,7 +88,8 @@ if [[ "$COMMAND" == "add" || "$COMMAND" == "pull" ]]; then
                 skip "$prefix 已存在"
                 continue
             fi
-
+            git reset --hard HEAD
+            git clean -fdx
             action "subtree add $prefix <= $repo ($branch)"
             git subtree add \
                 --prefix="$prefix" \
