@@ -1,6 +1,7 @@
 name: Sync Subtrees on Config Update
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "subtrees.conf"
