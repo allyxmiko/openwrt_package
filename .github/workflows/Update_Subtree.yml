@@ -15,15 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ensure clean working tree
-        run: |
-            git reset --hard
-            git clean -fdx
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Ensure clean working tree
+        run: |
+            git reset --hard
+            git clean -fdx
 
       - name: Configure Git
         run: |
