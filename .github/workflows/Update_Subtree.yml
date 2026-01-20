@@ -2,6 +2,7 @@ name: Sync Subtrees on Config Update
 
 # 只在 subtrees.conf 被更新时触发
 on:
+  workflow_dispatch:
   push:
     paths:
       - "subtrees.conf"
